@@ -1,5 +1,5 @@
 
-// clase sobre el trabajo practico de la escuela de verano algoritmos.
+// Trabajo practico de la escuela de verano algoritmos.
 
 #include<iostream>
 #include<stdlib.h>
