@@ -78,5 +78,4 @@ El archivo binario almacena los pedidos en formato estructurado. El programa lee
 - El programa debe ejecutarse en un entorno donde se pueda leer y escribir en archivos binarios.
 
 ## Autores
-Desarrollado por [Tu Nombre].
-
+Desarrollado por [].
