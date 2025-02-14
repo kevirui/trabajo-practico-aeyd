@@ -1,6 +1,7 @@
 #include<iostream>
 #include<stdlib.h>
 #include<string.h>
+#include<cfloat>
 using namespace std;
 
 // 1- Declarar el campo de la informacion del Nodo.
@@ -63,7 +64,7 @@ struct Componentes
 
 Componentes vectorComponentes[1000];
 
-struct Pedido
+struct registroPedidos
 {
     int ID_pedido;
     int ID_linea;
@@ -183,7 +184,62 @@ int main()
   srand(time(0));
   cargarModelos();
   cargarComponentes();
-  mostrarModelos();
-  mostrarComponentes();
+ 
+  FILE* archivoPedidos = fopen("pedidos.dat", "ab");
+
+  if(!archivoPedidos){
+    cout<< "Error al abrir el archivo"<< endl;
+    return 1;
+  }
+
+  registroPedidos pedido;
+  for(int i = 0; i<10; i++){
+    cout<<"Ingresa el pedido: "<< i+1<< " a continuacion"<< endl;
+    pedido.ID_pedido = i+1;
+
+    cout<<"Ingresa el id linea que deseas: ";     cin>>pedido.ID_linea;
+
+    cout<<"Ingresa el id modelo que deseas: "; cin>>pedido.ID_modelo;
+
+    cout<<"Ingresa la cantidad que deseas: "; cin>>pedido.cantidad;
+
+    fwrite(&pedido, sizeof(pedido), 1, archivoPedidos);
+  }
+  fclose(archivoPedidos);
+  cout<< "Pedidos guardados correctamente"<< endl;
+
+  // Leer y asociar los pedidos
+  fseek(archivoPedidos, 0, SEEK_SET);
+
+  // Recorrer modelos, buscar el modelo, componentes del modelo, el vector de componentes, buscar el componente 
+  while(fread(&pedido, sizeof(pedido), 1, archivoPedidos)){
+    for(int i = 0; i<5; i++){
+      if(pedido.ID_modelo == vectorModelos[i].ID_modelo){
+	nodoModelos* componentes = vectorModelos[i].listaDeComponentes;
+	while(componentes != nullptr){
+	  for(int j = 0; j< 10; j++){
+	    if(componentes->info.ID_Accesorio == vectorComponentes[j].ID){
+	      NodoProveedores* proveedor = vectorComponentes[j].listaProveedores;
+	      float menorValor = FLT_MAX; // Inicializa con el mayor valor posible
+	      NodoProveedores* proveedorMenor = nullptr;
+
+	      while(proveedor != nullptr){
+		if(proveedor->info.valor_unitario < menorValor){
+		  menorValor = proveedor->info.valor_unitario;
+		  proveedorMenor = proveedor;
+		}
+		proveedor = proveedor->sgte;
+	      }
+	    }
+	  }
+	  componentes = componentes->sgte;
+	}
+      }
+    }
+  }
+
+  fclose(archivoPedidos);
+    
+
   return 0;
 }
