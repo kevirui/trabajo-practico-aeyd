@@ -6,7 +6,7 @@ using namespace std;
 
 // 1- Declarar el campo de la informacion del Nodo.
 
-struct RegistroAccesorios 
+struct RegistroAccesorios
 {
   int ID_Accesorio;
   char descripcion[101];
@@ -33,7 +33,6 @@ struct RegistroModelos
 };
 
 // 4- Declarar vector de modelos.
-
 
 // Los puntos 1 al 4 son los necesarios para declarar las estructuras del primero de los vectores.
 
@@ -68,36 +67,38 @@ struct RegistroArchivoPedidos
   int fecha;
   int cantidadPedidos;
   float costo;
-  Componentes* componente;
+  Componentes *componente;
 };
 
 string nombres[] = {
-      "Air Max 2025", "Classic Leather", "Sport Pro X", "Zeta Runner", "Urban Pulse",
-      "Aero Glide", "Trail Blazer", "Skyline Boost", "Velocity Grip", "Storm Breaker",
-      "Hyperflex Alpha", "Momentum Edge", "Eco Stepper", "Fusion X", "Gravity Ride",
-      "Stratus Flow", "Wave Runner", "Titan Core", "Zenith Trek", "Quantum Dash",
-      "Nova Impact", "Epic Horizon", "Terra Stride", "Blizzard Force", "Aqua Storm",
-      "Rapid Flux", "Nimbus Drift", "Inferno Sprint", "Shadow Pulse", "Eclipse Aero",
-      "Glacier Trek", "Solar Shift", "Thunder Ace", "Cosmo Sprint", "Vortex Glide",
-      "Nebula Runner", "Canyon Racer", "Falcon Drive", "Sonic Surge", "Stellar Drift",
-      "Tornado Max", "Astro Pulse", "Aurora Blaze", "Comet Sprint", "Phantom Trek",
-      "Echo Stride", "Supernova Glide", "Pioneer Dash", "Horizon Edge", "Hyper Drive"};
+    "Air Max 2025", "Classic Leather", "Sport Pro X", "Zeta Runner", "Urban Pulse",
+    "Aero Glide", "Trail Blazer", "Skyline Boost", "Velocity Grip", "Storm Breaker",
+    "Hyperflex Alpha", "Momentum Edge", "Eco Stepper", "Fusion X", "Gravity Ride",
+    "Stratus Flow", "Wave Runner", "Titan Core", "Zenith Trek", "Quantum Dash",
+    "Nova Impact", "Epic Horizon", "Terra Stride", "Blizzard Force", "Aqua Storm",
+    "Rapid Flux", "Nimbus Drift", "Inferno Sprint", "Shadow Pulse", "Eclipse Aero",
+    "Glacier Trek", "Solar Shift", "Thunder Ace", "Cosmo Sprint", "Vortex Glide",
+    "Nebula Runner", "Canyon Racer", "Falcon Drive", "Sonic Surge", "Stellar Drift",
+    "Tornado Max", "Astro Pulse", "Aurora Blaze", "Comet Sprint", "Phantom Trek",
+    "Echo Stride", "Supernova Glide", "Pioneer Dash", "Horizon Edge", "Hyper Drive"};
 
 string temporadas[] = {"verano", "invierno"};
 
 string nombresComponentes[] = {
-      "Suela de goma", "Cordones resistentes", "Plantilla acolchada", "Forro transpirable", "Refuerzo de talón",
-      "Cámara de aire", "Tejido impermeable", "Sistema de ajuste rápido", "Entresuela EVA", "Refuerzo lateral",
-      "Cojín de impacto", "Placa de carbono", "Diseño ergonómico", "Malla transpirable", "Refuerzo en puntera",
-      "Sistema de amortiguación", "Estructura de soporte", "Cuero sintético", "Espuma de memoria", "Costura reforzada"};
+    "Suela de goma", "Cordones resistentes", "Plantilla acolchada", "Forro transpirable", "Refuerzo de talón",
+    "Cámara de aire", "Tejido impermeable", "Sistema de ajuste rápido", "Entresuela EVA", "Refuerzo lateral",
+    "Cojín de impacto", "Placa de carbono", "Diseño ergonómico", "Malla transpirable", "Refuerzo en puntera",
+    "Sistema de amortiguación", "Estructura de soporte", "Cuero sintético", "Espuma de memoria", "Costura reforzada"};
 
 string nombresProveedores[] = {"Proveedor A", "Proveedor B", "Proveedor C"};
 RegistroModelos vectorModelos[50];
-Componentes* vectorComponentes[1000];
+Componentes *vectorComponentes[1000];
 int cantModelos = 0, cantComponentes = 0;
 
-void inicializarComponentes(){
-  for(int i=0; i<1000; i++){
+void inicializarComponentes()
+{
+  for (int i = 0; i < 1000; i++)
+  {
     vectorComponentes[i] = nullptr;
   }
 }
@@ -118,7 +119,7 @@ void cargarComponentes(int cantidadComponentes, RegistroModelos vectorModelos)
       NodoProveedores *nuevoProveedor = new NodoProveedores;
       nuevoProveedor->info.ID = j;
       strcpy(nuevoProveedor->info.nombre, nombresProveedores[j].c_str());
-      nuevoProveedor->info.valor_unitario = ( (rand() % 5000 + 50) / 100.0 );
+      nuevoProveedor->info.valor_unitario = ((rand() % 5000 + 50) / 100.0);
       nuevoProveedor->sgte = vectorComponentes[i]->listaProveedores;
       vectorComponentes[i]->listaProveedores = nuevoProveedor;
     }
@@ -126,31 +127,34 @@ void cargarComponentes(int cantidadComponentes, RegistroModelos vectorModelos)
 }
 
 void cargarModelos(int cantPedidos, RegistroArchivoPedidos pedido)
-{ 
+{
   for (int i = 0; i < cantPedidos; i++)
   {
     vectorModelos[i].ID_modelo = pedido.ID_modelo;
-    strcpy(vectorModelos[i].nombre, nombres[pedido.ID_modelo-1].c_str());
+    strcpy(vectorModelos[i].nombre, nombres[pedido.ID_modelo - 1].c_str());
     vectorModelos[i].precio_base = (rand() % 15000 + 5000) / 100.0;
     vectorModelos[i].temporada = temporadas[i % 2];
 
     vectorModelos[i].listaDeComponentes = nullptr;
-    NodoComponente* ultimo = nullptr;
+    NodoComponente *ultimo = nullptr;
 
-    // Asociar componentes al modelo 
+    // Asociar componentes al modelo
     cantComponentes = rand() % 5 + 1;
     for (int j = 0; j < cantComponentes; j++)
     {
       int idComponente = rand() % 5;
-      NodoComponente* nuevo = new NodoComponente();
+      NodoComponente *nuevo = new NodoComponente();
       nuevo->info.ID_Accesorio = idComponente;
       nuevo->info.stock = rand() % 10 + 1;
       nuevo->sgte = nullptr;
 
-      if(vectorModelos[i].listaDeComponentes == nullptr){
-	vectorModelos[i].listaDeComponentes = nuevo;
-      }else{
-	ultimo->sgte = nuevo;
+      if (vectorModelos[i].listaDeComponentes == nullptr)
+      {
+        vectorModelos[i].listaDeComponentes = nuevo;
+      }
+      else
+      {
+        ultimo->sgte = nuevo;
       }
       ultimo = nuevo;
     }
@@ -158,41 +162,43 @@ void cargarModelos(int cantPedidos, RegistroArchivoPedidos pedido)
   }
 }
 
-void mostrarPedido(int cantPedidos, FILE* archivoPedidos)
+void mostrarPedido(int cantPedidos, FILE *archivoPedidos)
 {
-  fseek(FILE* archivoPedidos, sizeof(archivoPedidos), SEEK_SET);
+  fseek(archivoPedidos, 0, SEEK_SET);
 
-  while(fread()){}
-  int idModeloSolicitado = pedido.ID_modelo;
+  RegistroArchivoPedidos pedido;
 
   for (int i = 0; i < cantPedidos; i++)
   {
+    fread(&pedido, sizeof(pedido), 1, archivoPedidos);
+    int idModeloSolicitado = pedido.ID_modelo;
+
     cout << "ID: " << vectorModelos[idModeloSolicitado].ID_modelo << endl;
-    cout << "Nombre del modelo: " << vectorModelos[idModeloSolicitado].nombre<< endl;
+    cout << "Nombre del modelo: " << vectorModelos[idModeloSolicitado].nombre << endl;
     cout << "Precio Base: $" << vectorModelos[idModeloSolicitado].precio_base << endl;
     cout << "Tempoarada: " << vectorModelos[idModeloSolicitado].temporada << endl;
-    cout << "Componentes: "<< endl;
-    NodoComponente *temp = vectorModelos[idModeloSolicitado].listaDeComponentes;
-    while (temp != nullptr)
+    cout << "Componentes: " << endl;
+    NodoComponente *auxComponente = vectorModelos[idModeloSolicitado].listaDeComponentes;
+    while (auxComponente != nullptr)
     {
-      cout << " - Componente ID: " << temp->info.ID_Accesorio << " ( Cantidad: " << temp->info.stock<< " )" << endl;
-      temp = temp->sgte;
+      cout << " - Componente ID: " << auxComponente->info.ID_Accesorio << " ( Cantidad: " << auxComponente->info.stock << " )" << endl;
+      auxComponente = auxComponente->sgte;
     }
     cout << "-- o --" << endl;
   }
 
-  cout<< "Lista de Componentes: "<< endl;
+  cout << "Lista de Componentes: " << endl;
   for (int i = 0; i < pedido.componente->listaDeComponentes->info.stock; i++)
   {
-    cout << "ID: " << vectorComponentes[idModeloSolicitado]->listaDeComponentes->info.ID_Accesorio << endl;
-    cout << "Componente: " << vectorComponentes[idModeloSolicitado]->listaDeComponentes->info.descripcion << endl;
-    cout << "Stock: " << vectorComponentes[idModeloSolicitado]->listaDeComponentes->info.stock << endl;
+    cout << "ID: " << vectorComponentes[i]->listaDeComponentes->info.ID_Accesorio << endl;
+    cout << "Componente: " << vectorComponentes[i]->listaDeComponentes->info.descripcion << endl;
+    cout << "Stock: " << vectorComponentes[i]->listaDeComponentes->info.stock << endl;
     cout << "Proveedores: " << endl;
-    NodoProveedores *temp = vectorComponentes[idModeloSolicitado]->listaProveedores;
-    while (temp)
+    NodoProveedores *auxProveedores = vectorComponentes[i]->listaProveedores;
+    while (auxProveedores)
     {
-      cout << " - " << temp->info.nombre << " ( Valor: $" << temp->info.valor_unitario << " )" << endl;
-      temp = temp->sgte;
+      cout << " - " << auxProveedores->info.nombre << " ( Valor: $" << auxProveedores->info.valor_unitario << " )" << endl;
+      auxProveedores = auxProveedores->sgte;
     }
     cout << "-- o --" << endl;
   }
@@ -213,7 +219,8 @@ int main()
   }
 
   int cantPedidos;
-  cout<< "Cuantos pedidos quieres? "; cin>> cantPedidos;
+  cout << "Cuantos pedidos quieres? ";
+  cin >> cantPedidos;
 
   RegistroArchivoPedidos pedido;
   for (int i = 0; i < cantPedidos; i++)
@@ -232,7 +239,7 @@ int main()
 
     fwrite(&pedido, sizeof(pedido), 1, archivoPedidos);
   }
-  
+
   cargarModelos(cantPedidos, pedido);
 
   cout << "Pedidos guardados correctamente" << endl;
@@ -240,7 +247,6 @@ int main()
   mostrarPedido(cantPedidos, archivoPedidos);
 
   fclose(archivoPedidos);
-
 
   return 0;
 }
