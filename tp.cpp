@@ -1,300 +1,150 @@
 #include <iostream>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <cfloat>
-using namespace std;
 
-// 1- Declarar el campo de la informacion del Nodo.
+#define MAX_MODELOS 50
+#define MAX_COMPONENTES 1000
 
-struct RegistroAccesorios
-{
-  int ID_Accesorio;
-  char descripcion[101];
-  int stock;
+struct Proveedor {
+    int id;
+    char nombre[100];
+    float valor_unitario;
 };
 
-// 2- Declarar struct Nodo()
-
-struct NodoComponente
-{
-  RegistroAccesorios info;
-  NodoComponente *sgte;
+struct Componente {
+    int id;
+    char descripcion[100];
+    Proveedor proveedores[10]; // Máximo 10 proveedores por componente
+    int num_proveedores;
+    int stock;
 };
 
-// 3- Declarar struct registro de modelos.
-
-struct RegistroModelos
-{
-  int ID_modelo;
-  char nombre[101];
-  float precio_base;
-  string temporada;
-  NodoComponente *listaDeComponentes;
+struct ComponenteModelo {
+    int id_accesorio;
+    int cantidad;
 };
 
-// 4- Declarar vector de modelos.
-
-// Los puntos 1 al 4 son los necesarios para declarar las estructuras del primero de los vectores.
-
-// 5- Declarar struct tipoInfo de proveedores.
-
-struct tipoInfoProveedores
-{
-  int ID;
-  char nombre[50];
-  float valor_unitario;
+struct Modelo {
+    int id;
+    char descripcion[100];
+    float precio_base;
+    char temporada[10]; // "verano" o "invierno"
+    ComponenteModelo componentes[10]; // Máximo 10 componentes por modelo
+    int num_componentes;
 };
 
-// 6- Declarar struct Nodo de proveedores.
-
-struct NodoProveedores
-{
-  tipoInfoProveedores info;
-  NodoProveedores *sgte;
+struct Pedido {
+    int id_pedido;
+    int id_linea;
+    char fecha[11];
+    int id_modelo;
+    int cantidad;
+    float costo;
 };
 
-struct Componentes
-{
-  NodoComponente *listaDeComponentes;
-  NodoProveedores *listaProveedores;
-};
+Modelo modelos[MAX_MODELOS];
+Componente componentes[MAX_COMPONENTES];
+int num_modelos = 0, num_componentes = 0;
 
-struct RegistroArchivoPedidos
-{
-  int ID_pedido;
-  int ID_linea;
-  int ID_modelo;
-  int fecha;
-  int cantidadPedidos;
-  float costo;
-  Componentes *componente;
-};
+void cargar_datos_prueba() {
+    modelos[0] = {1, "Modelo Deportivo", 1500.0, "verano", {{1000, 2}, {1001, 1}}, 2};
+    modelos[1] = {2, "Modelo Invierno", 2000.0, "invierno", {{1002, 3}}, 1};
+    num_modelos = 2;
 
-string nombres[] = {
-    "Air Max 2025", "Classic Leather", "Sport Pro X", "Zeta Runner", "Urban Pulse",
-    "Aero Glide", "Trail Blazer", "Skyline Boost", "Velocity Grip", "Storm Breaker",
-    "Hyperflex Alpha", "Momentum Edge", "Eco Stepper", "Fusion X", "Gravity Ride",
-    "Stratus Flow", "Wave Runner", "Titan Core", "Zenith Trek", "Quantum Dash",
-    "Nova Impact", "Epic Horizon", "Terra Stride", "Blizzard Force", "Aqua Storm",
-    "Rapid Flux", "Nimbus Drift", "Inferno Sprint", "Shadow Pulse", "Eclipse Aero",
-    "Glacier Trek", "Solar Shift", "Thunder Ace", "Cosmo Sprint", "Vortex Glide",
-    "Nebula Runner", "Canyon Racer", "Falcon Drive", "Sonic Surge", "Stellar Drift",
-    "Tornado Max", "Astro Pulse", "Aurora Blaze", "Comet Sprint", "Phantom Trek",
-    "Echo Stride", "Supernova Glide", "Pioneer Dash", "Horizon Edge", "Hyper Drive"};
-
-string temporadas[] = {"verano", "invierno"};
-
-string nombresComponentes[] = {
-    "Suela de goma", "Cordones resistentes", "Plantilla acolchada", "Forro transpirable", "Refuerzo de talón",
-    "Cámara de aire", "Tejido impermeable", "Sistema de ajuste rápido", "Entresuela EVA", "Refuerzo lateral",
-    "Cojín de impacto", "Placa de carbono", "Diseño ergonómico", "Malla transpirable", "Refuerzo en puntera",
-    "Sistema de amortiguación", "Estructura de soporte", "Cuero sintético", "Espuma de memoria", "Costura reforzada"};
-
-string nombresProveedores[] = {"Proveedor A", "Proveedor B", "Proveedor C"};
-RegistroModelos vectorModelos[50];
-Componentes *vectorComponentes[1000];
-int cantModelos = 0, cantComponentes = 0;
-
-void inicializarComponentes()
-{
-  for (int i = 0; i < 1000; i++)
-  {
-    vectorComponentes[i] = nullptr;
-  }
+    componentes[0] = {1000, "Cordones", {{1, "Proveedor A", 10.0}, {2, "Proveedor B", 9.5}}, 2, 50};
+    componentes[1] = {1001, "Suela", {{3, "Proveedor C", 25.0}}, 1, 30};
+    componentes[2] = {1002, "Plantilla", {{4, "Proveedor D", 5.0}}, 1, 100};
+    num_componentes = 3;
 }
 
-void cargarComponentes(int cantidadComponentes, RegistroModelos &modelo)
-{
-  NodoComponente *auxComponente = modelo.listaDeComponentes;
-  while (auxComponente != nullptr)
-  {
-    int IDAccesorio = auxComponente->info.ID_Accesorio;
-    strcpy(auxComponente->info.descripcion, nombresComponentes[IDAccesorio].c_str());
-    auxComponente = auxComponente->sgte;
-  }
-
-  for (int i = 0; i < cantidadComponentes; i++)
-  {
-    vectorComponentes[i] = new Componentes;
-    vectorComponentes[i]->listaDeComponentes = modelo.listaDeComponentes;
-    vectorComponentes[i]->listaProveedores = nullptr;
-
-    // Agregar Proveedores al Componente
-    for (int j = 0; j < 3; j++)
-    {
-      NodoProveedores *nuevoProveedor = new NodoProveedores;
-      nuevoProveedor->info.ID = j + 1;
-      strcpy(nuevoProveedor->info.nombre, nombresProveedores[j].c_str());
-      nuevoProveedor->info.valor_unitario = ((rand() % 5000 + 50) / 100.0);
-      nuevoProveedor->sgte = vectorComponentes[i]->listaProveedores;
-      vectorComponentes[i]->listaProveedores = nuevoProveedor;
+void generar_archivo_pedidos(const char *archivo_pedidos) {
+    FILE *file = fopen(archivo_pedidos, "rb");
+    if (file) {
+        fclose(file);
+        return; // El archivo ya existe, no es necesario generarlo
     }
-  }
-}
-
-void cargarModelos(int cantPedidos, RegistroArchivoPedidos *pedidos)
-{
-  for (int i = 0; i < cantPedidos; i++)
-  {
-    int idModelo = pedidos[i].ID_modelo - 1;
-    vectorModelos[idModelo].ID_modelo = pedidos[i].ID_modelo;
-    strcpy(vectorModelos[idModelo].nombre, nombres[pedidos[i].ID_modelo - 1].c_str());
-    vectorModelos[idModelo].precio_base = (rand() % 15000 + 5000) / 100.0;
-    vectorModelos[idModelo].temporada = temporadas[i % 2];
-
-    vectorModelos[idModelo].listaDeComponentes = nullptr;
-    NodoComponente *ultimo = nullptr;
-
-    // Asociar componentes al modelo
-    cantComponentes = rand() % 5 + 1;
-    for (int j = 0; j < cantComponentes; j++)
-    {
-      int idComponente = rand() % 20; // Cambiado a 20 para cubrir todos los nombresComponentes
-      NodoComponente *nuevo = new NodoComponente();
-      nuevo->info.ID_Accesorio = idComponente;
-      nuevo->info.stock = rand() % 10 + 1;
-      nuevo->sgte = nullptr;
-
-      if (vectorModelos[idModelo].listaDeComponentes == nullptr)
-      {
-        vectorModelos[idModelo].listaDeComponentes = nuevo;
-      }
-      else
-      {
-        ultimo->sgte = nuevo;
-      }
-      ultimo = nuevo;
+    
+    file = fopen(archivo_pedidos, "wb");
+    if (!file) {
+        std::cout << "Error al crear el archivo de pedidos.\n";
+        return;
     }
-    cargarComponentes(cantComponentes, vectorModelos[idModelo]);
-  }
+
+    Pedido pedidos[] = {
+        {1, 1, "2025-02-19", 1, 2, 0.0},
+        {2, 2, "2025-02-19", 2, 1, 0.0}
+    };
+
+    fwrite(pedidos, sizeof(Pedido), 2, file);
+    fclose(file);
+    std::cout << "Archivo de pedidos generado correctamente.\n";
 }
 
-void mostrarPedido(int cantPedidos, FILE *archivoPedidos)
-{
-  fseek(archivoPedidos, 0, SEEK_SET);
-
-  RegistroArchivoPedidos pedido;
-
-  for (int i = 0; i < cantPedidos; i++)
-  {
-    fread(&pedido, sizeof(pedido), 1, archivoPedidos);
-    int idModeloSolicitado = pedido.ID_modelo - 1;
-
-    cout << "ID: " << vectorModelos[idModeloSolicitado].ID_modelo << endl;
-    cout << "Nombre del modelo: " << vectorModelos[idModeloSolicitado].nombre << endl;
-    cout << "Precio Base: $" << vectorModelos[idModeloSolicitado].precio_base << endl;
-    cout << "Temporada: " << vectorModelos[idModeloSolicitado].temporada << endl;
-    cout << "Componentes: " << endl;
-    NodoComponente *auxComponente = vectorModelos[idModeloSolicitado].listaDeComponentes;
-    while (auxComponente != nullptr)
-    {
-      cout << " - Componente ID: " << auxComponente->info.ID_Accesorio << endl;
-      cout << " - Nombre del componente: " << auxComponente->info.descripcion << endl;
-      cout << " - Stock del componente: " << auxComponente->info.stock << endl;
-      cout << " - Proveedores: " << endl;
-      NodoProveedores *auxProveedores = vectorComponentes[auxComponente->info.ID_Accesorio]->listaProveedores;
-      while (auxProveedores != nullptr)
-      {
-        cout << "   -- " << auxProveedores->info.nombre;
-        cout << " ( Valor: $" << auxProveedores->info.valor_unitario << " )" << endl;
-        auxProveedores = auxProveedores->sgte;
-      }
-      cout << "-- o --" << endl;
-      auxComponente = auxComponente->sgte;
-    }
-  }
-}
-
-void calcularCostoYActualizarPedidos(int cantPedidos, FILE *archivoPedidos)
-{
-  fseek(archivoPedidos, 0, SEEK_SET);
-
-  RegistroArchivoPedidos pedido;
-  float costoTotal = 0;
-
-  for (int i = 0; i < cantPedidos; i++)
-  {
-    fread(&pedido, sizeof(pedido), 1, archivoPedidos);
-    int idModeloSolicitado = pedido.ID_modelo - 1;
-    float costoParcial = 0;
-
-    NodoComponente *auxComponente = vectorModelos[idModeloSolicitado].listaDeComponentes;
-    while (auxComponente != nullptr)
-    {
-      NodoProveedores *auxProveedores = vectorComponentes[auxComponente->info.ID_Accesorio]->listaProveedores;
-      float menorValor = FLT_MAX;
-
-      while (auxProveedores != nullptr)
-      {
-        if (auxProveedores->info.valor_unitario < menorValor)
-        {
-          menorValor = auxProveedores->info.valor_unitario;
+void actualizar_stock_y_costo(Pedido &pedido) {
+    for (int i = 0; i < num_modelos; i++) {
+        if (modelos[i].id == pedido.id_modelo) {
+            float costo_total = 0;
+            std::cout << "\nProcesando pedido ID " << pedido.id_pedido << " (Modelo: " << modelos[i].descripcion << ")\n";
+            for (int j = 0; j < modelos[i].num_componentes; j++) {
+                int id_componente = modelos[i].componentes[j].id_accesorio;
+                int cantidad_necesaria = modelos[i].componentes[j].cantidad * pedido.cantidad;
+                
+                for (int k = 0; k < num_componentes; k++) {
+                    if (componentes[k].id == id_componente) {
+                        float menor_precio = FLT_MAX;
+                        for (int p = 0; p < componentes[k].num_proveedores; p++) {
+                            if (componentes[k].proveedores[p].valor_unitario < menor_precio) {
+                                menor_precio = componentes[k].proveedores[p].valor_unitario;
+                            }
+                        }
+                        
+                        if (componentes[k].stock >= cantidad_necesaria) {
+                            componentes[k].stock -= cantidad_necesaria;
+                            std::cout << "  - " << componentes[k].descripcion << ": Se usaron " << cantidad_necesaria << " unidades. Stock restante: " << componentes[k].stock << "\n";
+                        } else {
+                            std::cout << "  - Stock insuficiente para " << componentes[k].descripcion << " (Requiere: " << cantidad_necesaria << ", Disponible: " << componentes[k].stock << ")\n";
+                        }
+                        
+                        costo_total += menor_precio * cantidad_necesaria;
+                    }
+                }
+            }
+            pedido.costo = costo_total;
+            std::cout << "  -> Costo total del pedido ID " << pedido.id_pedido << ": " << costo_total << "\n";
+            return;
         }
-        auxProveedores = auxProveedores->sgte;
-      }
-
-      costoParcial += menorValor * auxComponente->info.stock;
-      auxComponente->info.stock -= pedido.cantidadPedidos; // Actualizar stock
-      auxComponente = auxComponente->sgte;
     }
-
-    pedido.costo = costoParcial;
-    costoTotal += costoParcial;
-
-    fseek(archivoPedidos, -sizeof(pedido), SEEK_CUR);
-    fwrite(&pedido, sizeof(pedido), 1, archivoPedidos);
-    fseek(archivoPedidos, 0, SEEK_CUR);
-  }
-
-  cout << "Costo total del pedido: $" << costoTotal << endl;
 }
 
-// Resolucion estrategica del problema:
-// 1- Abrir archivo
-int main()
-{
-  srand(time(0));
+void procesar_pedidos(const char *archivo_pedidos) {
+    FILE *file = fopen(archivo_pedidos, "r+b");
+    if (!file) {
+        std::cout << "Error al abrir el archivo de pedidos.\n";
+        return;
+    }
+    
+    Pedido pedido;
+    float costo_total_pedidos = 0;
+    
+    while (fread(&pedido, sizeof(Pedido), 1, file) == 1) {
+        actualizar_stock_y_costo(pedido);
+        costo_total_pedidos += pedido.costo;
 
-  FILE *archivoPedidos = fopen("pedidos.dat", "rb+");
+        fseek(file, -(long)sizeof(Pedido), SEEK_CUR);
+        fwrite(&pedido, sizeof(Pedido), 1, file);
 
-  if (!archivoPedidos)
-  {
-    cout << "Error al abrir el archivo" << endl;
-    return 1;
-  }
+	fflush(file);
+    }
+    
+    fclose(file);
+    std::cout << "\nCosto total de todos los pedidos: " << costo_total_pedidos << "\n";
+}
 
-  int cantPedidos;
-  cout << "Cuantos pedidos quieres? ";
-  cin >> cantPedidos;
-
-  RegistroArchivoPedidos *pedidos = new RegistroArchivoPedidos[cantPedidos];
-  for (int i = 0; i < cantPedidos; i++)
-  {
-    cout << "Ingresa el pedido " << i + 1 << " a continuacion" << endl;
-    pedidos[i].ID_pedido = i;
-
-    cout << "Ingresa el id linea que deseas: ";
-    cin >> pedidos[i].ID_linea;
-
-    cout << "Ingresa el id modelo que deseas: ";
-    cin >> pedidos[i].ID_modelo;
-
-    cout << "Ingresa la cantidad que deseas: ";
-    cin >> pedidos[i].cantidadPedidos;
-
-    fwrite(&pedidos[i], sizeof(pedidos[i]), 1, archivoPedidos);
-  }
-
-  cargarModelos(cantPedidos, pedidos);
-
-  cout << "Pedidos guardados correctamente" << endl;
-
-  calcularCostoYActualizarPedidos(cantPedidos, archivoPedidos);
-
-  mostrarPedido(cantPedidos, archivoPedidos);
-
-  fclose(archivoPedidos);
-  delete[] pedidos;
-
-  return 0;
+int main() {
+    cargar_datos_prueba();
+    generar_archivo_pedidos("pedidos.dat");
+    procesar_pedidos("pedidos.dat");
+    return 0;
 }
