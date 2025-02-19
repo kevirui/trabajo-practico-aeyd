@@ -103,11 +103,13 @@ void inicializarComponentes()
   }
 }
 
-void cargarComponentes(int cantidadComponentes, RegistroModelos vectorModelos)
+void cargarComponentes(int cantidadComponentes, RegistroModelos &modelo)
 {
-  int IDAccesorio = vectorModelos.listaDeComponentes->info.ID_Accesorio;
+  int IDAccesorio = modelo.listaDeComponentes->info.ID_Accesorio;
   for (int i = 0; i < cantidadComponentes; i++)
   {
+    vectorComponentes[i] = new Componentes;
+    vectorComponentes[i]->listaDeComponentes = new NodoComponente;
     vectorComponentes[i]->listaDeComponentes->info.ID_Accesorio = IDAccesorio;
     strcpy(vectorComponentes[i]->listaDeComponentes->info.descripcion, nombresComponentes[IDAccesorio].c_str());
     vectorComponentes[i]->listaProveedores = nullptr;
@@ -117,7 +119,7 @@ void cargarComponentes(int cantidadComponentes, RegistroModelos vectorModelos)
     for (int j = 0; j < 3; j++)
     {
       NodoProveedores *nuevoProveedor = new NodoProveedores;
-      nuevoProveedor->info.ID = j;
+      nuevoProveedor->info.ID = j+1;
       strcpy(nuevoProveedor->info.nombre, nombresProveedores[j].c_str());
       nuevoProveedor->info.valor_unitario = ((rand() % 5000 + 50) / 100.0);
       nuevoProveedor->sgte = vectorComponentes[i]->listaProveedores;
@@ -126,16 +128,17 @@ void cargarComponentes(int cantidadComponentes, RegistroModelos vectorModelos)
   }
 }
 
-void cargarModelos(int cantPedidos, RegistroArchivoPedidos pedido)
+void cargarModelos(int cantPedidos, RegistroArchivoPedidos *pedidos)
 {
   for (int i = 0; i < cantPedidos; i++)
   {
-    vectorModelos[i].ID_modelo = pedido.ID_modelo;
-    strcpy(vectorModelos[i].nombre, nombres[pedido.ID_modelo - 1].c_str());
-    vectorModelos[i].precio_base = (rand() % 15000 + 5000) / 100.0;
-    vectorModelos[i].temporada = temporadas[i % 2];
+    int idModelo = pedidos[i].ID_modelo - 1;
+    vectorModelos[idModelo].ID_modelo = pedidos[i].ID_modelo;
+    strcpy(vectorModelos[idModelo].nombre, nombres[pedidos[i].ID_modelo - 1].c_str());
+    vectorModelos[idModelo].precio_base = (rand() % 15000 + 5000) / 100.0;
+    vectorModelos[idModelo].temporada = temporadas[i % 2];
 
-    vectorModelos[i].listaDeComponentes = nullptr;
+    vectorModelos[idModelo].listaDeComponentes = nullptr;
     NodoComponente *ultimo = nullptr;
 
     // Asociar componentes al modelo
@@ -148,9 +151,9 @@ void cargarModelos(int cantPedidos, RegistroArchivoPedidos pedido)
       nuevo->info.stock = rand() % 10 + 1;
       nuevo->sgte = nullptr;
 
-      if (vectorModelos[i].listaDeComponentes == nullptr)
+      if (vectorModelos[idModelo].listaDeComponentes == nullptr)
       {
-        vectorModelos[i].listaDeComponentes = nuevo;
+        vectorModelos[idModelo].listaDeComponentes = nuevo;
       }
       else
       {
@@ -158,20 +161,18 @@ void cargarModelos(int cantPedidos, RegistroArchivoPedidos pedido)
       }
       ultimo = nuevo;
     }
-    cargarComponentes(cantComponentes, vectorModelos[i]);
+    cargarComponentes(cantComponentes, vectorModelos[idModelo]);
   }
 }
 
 void mostrarPedido(int cantPedidos, FILE *archivoPedidos)
 {
-  fseek(archivoPedidos, 0, SEEK_SET);
-
   RegistroArchivoPedidos pedido;
 
   for (int i = 0; i < cantPedidos; i++)
   {
     fread(&pedido, sizeof(pedido), 1, archivoPedidos);
-    int idModeloSolicitado = pedido.ID_modelo;
+    int idModeloSolicitado = pedido.ID_modelo - 1;
 
     cout << "ID: " << vectorModelos[idModeloSolicitado].ID_modelo << endl;
     cout << "Nombre del modelo: " << vectorModelos[idModeloSolicitado].nombre << endl;
@@ -181,26 +182,19 @@ void mostrarPedido(int cantPedidos, FILE *archivoPedidos)
     NodoComponente *auxComponente = vectorModelos[idModeloSolicitado].listaDeComponentes;
     while (auxComponente != nullptr)
     {
-      cout << " - Componente ID: " << auxComponente->info.ID_Accesorio << " ( Cantidad: " << auxComponente->info.stock << " )" << endl;
+      cout << " - Componente ID: " << auxComponente->info.ID_Accesorio<< endl;
+      cout << " - Nombre del componente: "<< auxComponente->info.descripcion<< endl;
+      cout << " - Stock del componente: "<< auxComponente->info.stock<< endl;
+      cout << " - Proveedores: "<< endl;
+      NodoProveedores *auxProveedores = vectorComponentes[i]->listaProveedores;
+      while (auxProveedores != nullptr){
+       cout << "   -- " << auxProveedores->info.nombre;
+       cout << " ( Valor: $"<< auxProveedores->info.valor_unitario<< " )"<< endl;
+       auxProveedores = auxProveedores->sgte;
+      }
+      cout << "-- o --" << endl;
       auxComponente = auxComponente->sgte;
     }
-    cout << "-- o --" << endl;
-  }
-
-  cout << "Lista de Componentes: " << endl;
-  for (int i = 0; i < pedido.componente->listaDeComponentes->info.stock; i++)
-  {
-    cout << "ID: " << vectorComponentes[i]->listaDeComponentes->info.ID_Accesorio << endl;
-    cout << "Componente: " << vectorComponentes[i]->listaDeComponentes->info.descripcion << endl;
-    cout << "Stock: " << vectorComponentes[i]->listaDeComponentes->info.stock << endl;
-    cout << "Proveedores: " << endl;
-    NodoProveedores *auxProveedores = vectorComponentes[i]->listaProveedores;
-    while (auxProveedores)
-    {
-      cout << " - " << auxProveedores->info.nombre << " ( Valor: $" << auxProveedores->info.valor_unitario << " )" << endl;
-      auxProveedores = auxProveedores->sgte;
-    }
-    cout << "-- o --" << endl;
   }
 }
 
@@ -210,7 +204,7 @@ int main()
 {
   srand(time(0));
 
-  FILE *archivoPedidos = fopen("pedidos.dat", "ab");
+  FILE *archivoPedidos = fopen("pedidos.dat", "rb+");
 
   if (!archivoPedidos)
   {
@@ -222,31 +216,33 @@ int main()
   cout << "Cuantos pedidos quieres? ";
   cin >> cantPedidos;
 
-  RegistroArchivoPedidos pedido;
+  RegistroArchivoPedidos *pedidos = new RegistroArchivoPedidos[cantPedidos];
   for (int i = 0; i < cantPedidos; i++)
   {
     cout << "Ingresa el pedido " << i + 1 << " a continuacion" << endl;
-    pedido.ID_pedido = i;
+    pedidos[i].ID_pedido = i;
 
     cout << "Ingresa el id linea que deseas: ";
-    cin >> pedido.ID_linea;
+    cin >> pedidos[i].ID_linea;
 
     cout << "Ingresa el id modelo que deseas: ";
-    cin >> pedido.ID_modelo;
+    cin >> pedidos[i].ID_modelo;
 
     cout << "Ingresa la cantidad que deseas: ";
-    cin >> pedido.cantidadPedidos;
+    cin >> pedidos[i].cantidadPedidos;
 
-    fwrite(&pedido, sizeof(pedido), 1, archivoPedidos);
+    fwrite(&pedidos[i], sizeof( pedidos[i] ), 1, archivoPedidos);
   }
 
-  cargarModelos(cantPedidos, pedido);
+  cargarModelos(cantPedidos, pedidos);
 
   cout << "Pedidos guardados correctamente" << endl;
 
+  fseek(archivoPedidos, 0, SEEK_SET);
   mostrarPedido(cantPedidos, archivoPedidos);
 
   fclose(archivoPedidos);
+  delete[] pedidos;
 
   return 0;
 }
