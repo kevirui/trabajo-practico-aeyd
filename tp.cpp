@@ -97,7 +97,7 @@ void cargarComponentes(int cantComponentes)
   {
     vectorComponentes[i].ID = i + 1;
 
-    strcpy(vectorComponentes[i].descripcion, nombresComponentes[i % 20].c_str());
+    strcpy(vectorComponentes[i].descripcion, nombresComponentes[rand() % (sizeof(nombresComponentes) / sizeof(nombresComponentes[0]))].c_str());
 
     vectorComponentes[i].listaProveedores = nullptr; 
     vectorComponentes[i].stock = rand() % 500 + 50;
