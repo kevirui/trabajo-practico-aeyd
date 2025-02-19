@@ -3,19 +3,17 @@
 #include <cstdlib>
 #include <cstring>
 #include <cfloat>
-
-#define MAX_MODELOS 50
-#define MAX_COMPONENTES 1000
+using namespace std;
 
 struct Proveedor {
     int id;
-    char nombre[100];
+    char nombre[100 + 1];
     float valor_unitario;
 };
 
 struct Componente {
     int id;
-    char descripcion[100];
+    char descripcion[100 + 1];
     Proveedor proveedores[10]; // Máximo 10 proveedores por componente
     int num_proveedores;
     int stock;
@@ -28,7 +26,7 @@ struct ComponenteModelo {
 
 struct Modelo {
     int id;
-    char descripcion[100];
+    char descripcion[100 + 1];
     float precio_base;
     char temporada[10]; // "verano" o "invierno"
     ComponenteModelo componentes[10]; // Máximo 10 componentes por modelo
@@ -44,11 +42,11 @@ struct Pedido {
     float costo;
 };
 
-Modelo modelos[MAX_MODELOS];
-Componente componentes[MAX_COMPONENTES];
+Modelo modelos[50];
+Componente componentes[1000];
 int num_modelos = 0, num_componentes = 0;
 
-void cargar_datos_prueba() {
+void cargarDatosPrueba() {
     modelos[0] = {1, "Modelo Deportivo", 1500.0, "verano", {{1000, 2}, {1001, 1}}, 2};
     modelos[1] = {2, "Modelo Invierno", 2000.0, "invierno", {{1002, 3}}, 1};
     num_modelos = 2;
@@ -59,16 +57,16 @@ void cargar_datos_prueba() {
     num_componentes = 3;
 }
 
-void generar_archivo_pedidos(const char *archivo_pedidos) {
-    FILE *file = fopen(archivo_pedidos, "rb");
-    if (file) {
-        fclose(file);
+void generarArchivoPedido(const char *archivo_pedidos) {
+    FILE *archivo = fopen(archivo_pedidos, "rb");
+    if (archivo) {
+        fclose(archivo);
         return; // El archivo ya existe, no es necesario generarlo
     }
     
-    file = fopen(archivo_pedidos, "wb");
-    if (!file) {
-        std::cout << "Error al crear el archivo de pedidos.\n";
+    archivo = fopen(archivo_pedidos, "wb");
+    if (!archivo) {
+        cout << "Error al crear el archivo de pedidos."<< endl;
         return;
     }
 
@@ -77,16 +75,17 @@ void generar_archivo_pedidos(const char *archivo_pedidos) {
         {2, 2, "2025-02-19", 2, 1, 0.0}
     };
 
-    fwrite(pedidos, sizeof(Pedido), 2, file);
-    fclose(file);
-    std::cout << "Archivo de pedidos generado correctamente.\n";
+    fwrite(pedidos, sizeof(Pedido), 2, archivo);
+    fclose(archivo);
+    cout << "Archivo de pedidos generado correctamente."<< endl;
 }
 
 void actualizar_stock_y_costo(Pedido &pedido) {
     for (int i = 0; i < num_modelos; i++) {
         if (modelos[i].id == pedido.id_modelo) {
             float costo_total = 0;
-            std::cout << "\nProcesando pedido ID " << pedido.id_pedido << " (Modelo: " << modelos[i].descripcion << ")\n";
+	    cout<< endl;
+            cout << "Procesando pedido ID " << pedido.id_pedido << " (Modelo: " << modelos[i].descripcion << ")"<< endl;
             for (int j = 0; j < modelos[i].num_componentes; j++) {
                 int id_componente = modelos[i].componentes[j].id_accesorio;
                 int cantidad_necesaria = modelos[i].componentes[j].cantidad * pedido.cantidad;
@@ -102,9 +101,9 @@ void actualizar_stock_y_costo(Pedido &pedido) {
                         
                         if (componentes[k].stock >= cantidad_necesaria) {
                             componentes[k].stock -= cantidad_necesaria;
-                            std::cout << "  - " << componentes[k].descripcion << ": Se usaron " << cantidad_necesaria << " unidades. Stock restante: " << componentes[k].stock << "\n";
+                            cout << "  - " << componentes[k].descripcion << ": Se usaron " << cantidad_necesaria << " unidades. Stock restante: " << componentes[k].stock << endl;
                         } else {
-                            std::cout << "  - Stock insuficiente para " << componentes[k].descripcion << " (Requiere: " << cantidad_necesaria << ", Disponible: " << componentes[k].stock << ")\n";
+                            cout << "  - Stock insuficiente para " << componentes[k].descripcion << " (Requiere: " << cantidad_necesaria << ", Disponible: " << componentes[k].stock << ")"<< endl;
                         }
                         
                         costo_total += menor_precio * cantidad_necesaria;
@@ -112,39 +111,41 @@ void actualizar_stock_y_costo(Pedido &pedido) {
                 }
             }
             pedido.costo = costo_total;
-            std::cout << "  -> Costo total del pedido ID " << pedido.id_pedido << ": " << costo_total << "\n";
+            cout << "  -> Costo total del pedido ID " << pedido.id_pedido << ": " << costo_total << endl;
             return;
         }
     }
 }
 
 void procesar_pedidos(const char *archivo_pedidos) {
-    FILE *file = fopen(archivo_pedidos, "r+b");
-    if (!file) {
-        std::cout << "Error al abrir el archivo de pedidos.\n";
+    FILE *archivo = fopen(archivo_pedidos, "r+b");
+    if (!archivo) {
+        cout << "Error al abrir el archivo de pedidos."<< endl;
         return;
     }
     
     Pedido pedido;
     float costo_total_pedidos = 0;
     
-    while (fread(&pedido, sizeof(Pedido), 1, file) == 1) {
+    while (fread(&pedido, sizeof(Pedido), 1, archivo) == 1) {
+      if(pedido.id_modelo > 0){
         actualizar_stock_y_costo(pedido);
         costo_total_pedidos += pedido.costo;
 
-        fseek(file, -(long)sizeof(Pedido), SEEK_CUR);
-        fwrite(&pedido, sizeof(Pedido), 1, file);
+        fseek(archivo, -static_cast<long>(sizeof(Pedido)), SEEK_CUR);
+        fwrite(&pedido, sizeof(Pedido), 1, archivo);
 
-	fflush(file);
+	fseek(archivo, 0, SEEK_CUR);
+      }
     }
     
-    fclose(file);
-    std::cout << "\nCosto total de todos los pedidos: " << costo_total_pedidos << "\n";
+    fclose(archivo);
+    cout << "Costo total de todos los pedidos: " << costo_total_pedidos << endl;
 }
 
 int main() {
-    cargar_datos_prueba();
-    generar_archivo_pedidos("pedidos.dat");
+    cargarDatosPrueba();
+    generarArchivoPedido("pedidos.dat");
     procesar_pedidos("pedidos.dat");
     return 0;
 }
