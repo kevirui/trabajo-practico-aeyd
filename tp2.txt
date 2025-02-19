@@ -1,0 +1,40 @@
+
+  // Leer y asociar los pedidos
+  fseek(archivoPedidos, 0, SEEK_SET);
+
+  // Recorrer modelos, buscar el modelo, componentes del modelo, el vector de componentes, buscar el componente
+  while (fread(&pedido, sizeof(pedido), 1, archivoPedidos))
+  {
+    for (int i = 0; i < 5; i++)
+    {
+      if (pedido.ID_modelo == vectorModelos[i].ID_modelo)
+      {
+        NodoComponente *componentes = vectorModelos[i].listaDeComponentes;
+        while (componentes != nullptr)
+        {
+          for (int j = 0; j < 10; j++)
+          {
+            if (componentes->info.ID_Accesorio == vectorComponentes[j]->listaDeComponentes->info.ID_Accesorio)
+            {
+              NodoProveedores *proveedor = vectorComponentes[j]->listaProveedores;
+              float menorValor = FLT_MAX; // Inicializa con el mayor valor posible
+              NodoProveedores *proveedorMenor = nullptr;
+
+              while (proveedor != nullptr)
+              {
+                if (proveedor->info.valor_unitario < menorValor)
+                {
+                  menorValor = proveedor->info.valor_unitario;
+                  proveedorMenor = proveedor;
+                }
+                proveedor = proveedor->sgte;
+              }
+            }
+          }
+          componentes = componentes->sgte;
+        }
+      }
+    }
+  }
+
+
