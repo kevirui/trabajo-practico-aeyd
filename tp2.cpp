@@ -49,16 +49,37 @@ Componente componentes[MAX_COMPONENTES];
 int num_modelos = 0, num_componentes = 0;
 
 void cargar_datos_prueba() {
-    // Cargar algunos modelos de prueba
     modelos[0] = {1, "Modelo Deportivo", 1500.0, "verano", {{1000, 2}, {1001, 1}}, 2};
     modelos[1] = {2, "Modelo Invierno", 2000.0, "invierno", {{1002, 3}}, 1};
     num_modelos = 2;
 
-    // Cargar algunos componentes de prueba
     componentes[0] = {1000, "Cordones", {{1, "Proveedor A", 10.0}, {2, "Proveedor B", 9.5}}, 2, 50};
     componentes[1] = {1001, "Suela", {{3, "Proveedor C", 25.0}}, 1, 30};
     componentes[2] = {1002, "Plantilla", {{4, "Proveedor D", 5.0}}, 1, 100};
     num_componentes = 3;
+}
+
+void generar_archivo_pedidos(const char *archivo_pedidos) {
+    FILE *file = fopen(archivo_pedidos, "rb");
+    if (file) {
+        fclose(file);
+        return; // El archivo ya existe, no es necesario generarlo
+    }
+    
+    file = fopen(archivo_pedidos, "wb");
+    if (!file) {
+        std::cout << "Error al crear el archivo de pedidos.\n";
+        return;
+    }
+
+    Pedido pedidos[] = {
+        {1, 1, "2025-02-19", 1, 2, 0.0},
+        {2, 2, "2025-02-19", 2, 1, 0.0}
+    };
+
+    fwrite(pedidos, sizeof(Pedido), 2, file);
+    fclose(file);
+    std::cout << "Archivo de pedidos generado correctamente.\n";
 }
 
 void actualizar_stock_y_costo(Pedido &pedido) {
@@ -120,6 +141,7 @@ void procesar_pedidos(const char *archivo_pedidos) {
 
 int main() {
     cargar_datos_prueba();
+    generar_archivo_pedidos("pedidos.dat");
     procesar_pedidos("pedidos.dat");
     return 0;
 }
