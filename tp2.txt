@@ -1,40 +1,109 @@
+#include <iostream>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cfloat>
 
-  // Leer y asociar los pedidos
-  fseek(archivoPedidos, 0, SEEK_SET);
+#define MAX_MODELOS 50
+#define MAX_COMPONENTES 1000
 
-  // Recorrer modelos, buscar el modelo, componentes del modelo, el vector de componentes, buscar el componente
-  while (fread(&pedido, sizeof(pedido), 1, archivoPedidos))
-  {
-    for (int i = 0; i < 5; i++)
-    {
-      if (pedido.ID_modelo == vectorModelos[i].ID_modelo)
-      {
-        NodoComponente *componentes = vectorModelos[i].listaDeComponentes;
-        while (componentes != nullptr)
-        {
-          for (int j = 0; j < 10; j++)
-          {
-            if (componentes->info.ID_Accesorio == vectorComponentes[j]->listaDeComponentes->info.ID_Accesorio)
-            {
-              NodoProveedores *proveedor = vectorComponentes[j]->listaProveedores;
-              float menorValor = FLT_MAX; // Inicializa con el mayor valor posible
-              NodoProveedores *proveedorMenor = nullptr;
+struct Proveedor {
+    int id;
+    char nombre[100];
+    float valor_unitario;
+};
 
-              while (proveedor != nullptr)
-              {
-                if (proveedor->info.valor_unitario < menorValor)
-                {
-                  menorValor = proveedor->info.valor_unitario;
-                  proveedorMenor = proveedor;
+struct Componente {
+    int id;
+    char descripcion[100];
+    Proveedor proveedores[10]; // Máximo 10 proveedores por componente
+    int num_proveedores;
+    int stock;
+};
+
+struct ComponenteModelo {
+    int id_accesorio;
+    int cantidad;
+};
+
+struct Modelo {
+    int id;
+    char descripcion[100];
+    float precio_base;
+    char temporada[10]; // "verano" o "invierno"
+    ComponenteModelo componentes[10]; // Máximo 10 componentes por modelo
+    int num_componentes;
+};
+
+struct Pedido {
+    int id_pedido;
+    int id_linea;
+    char fecha[11];
+    int id_modelo;
+    int cantidad;
+    float costo;
+};
+
+Modelo modelos[MAX_MODELOS];
+Componente componentes[MAX_COMPONENTES];
+int num_modelos = 0, num_componentes = 0;
+
+void actualizar_stock_y_costo(Pedido &pedido) {
+    for (int i = 0; i < num_modelos; i++) {
+        if (modelos[i].id == pedido.id_modelo) {
+            float costo_total = 0;
+            for (int j = 0; j < modelos[i].num_componentes; j++) {
+                int id_componente = modelos[i].componentes[j].id_accesorio;
+                int cantidad_necesaria = modelos[i].componentes[j].cantidad * pedido.cantidad;
+                
+                for (int k = 0; k < num_componentes; k++) {
+                    if (componentes[k].id == id_componente) {
+                        float menor_precio = FLT_MAX;
+                        for (int p = 0; p < componentes[k].num_proveedores; p++) {
+                            if (componentes[k].proveedores[p].valor_unitario < menor_precio) {
+                                menor_precio = componentes[k].proveedores[p].valor_unitario;
+                            }
+                        }
+                        
+                        if (componentes[k].stock >= cantidad_necesaria) {
+                            componentes[k].stock -= cantidad_necesaria;
+                        } else {
+                            std::cout << "Stock insuficiente para el componente " << componentes[k].descripcion << "\n";
+                        }
+                        
+                        costo_total += menor_precio * cantidad_necesaria;
+                    }
                 }
-                proveedor = proveedor->sgte;
-              }
             }
-          }
-          componentes = componentes->sgte;
+            pedido.costo = costo_total;
+            return;
         }
-      }
     }
-  }
+}
 
+void procesar_pedidos(const char *archivo_pedidos) {
+    FILE *file = fopen(archivo_pedidos, "r+b");
+    if (!file) {
+        std::cout << "Error al abrir el archivo de pedidos.\n";
+        return;
+    }
+    
+    Pedido pedido;
+    float costo_total_pedidos = 0;
+    
+    while (fread(&pedido, sizeof(Pedido), 1, file)) {
+        actualizar_stock_y_costo(pedido);
+        costo_total_pedidos += pedido.costo;
+        fseek(file, -sizeof(Pedido), SEEK_CUR);
+        fwrite(&pedido, sizeof(Pedido), 1, file);
+    }
+    
+    fclose(file);
+    std::cout << "Costo total de los pedidos: " << costo_total_pedidos << "\n";
+}
 
+int main() {
+    // Cargar modelos, componentes y pedidos (esto debería implementarse con carga de datos)
+    procesar_pedidos("pedidos.dat");
+    return 0;
+}
