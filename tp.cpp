@@ -8,9 +8,9 @@ using namespace std;
 /*
 1. Declarar estructuras de los nodos, registros y vectores necesarios
 
-2. Armar funciones para sincronizar la informacion de los registros, cargar vectores y mostrar datos en consola
+2. Armar funciones para sincronizar la información de los registros, cargar vectores y mostrar datos en consola
 
-3. 
+3. Procesar los pedidos cargados en el archivo "pedidos.dat", asociando cada pedido con su modelo correspondiente, verificando la disponibilidad de componentes y seleccionando el proveedor con el menor costo.
 */
 
 struct tipoInfo //Declarar informacion del nodo
@@ -112,7 +112,6 @@ void cargarComponentes(int cantComponentes, nodoModelos modelo)
 
     strcpy(vectorComponentes[i].descripcion, nombresComponentes[rand() % (sizeof(nombresComponentes) / sizeof(nombresComponentes[0]))].c_str());
 
-    nombresComponentes[rand() % modelo.listaDeComponentes->info.ID_Accesorio];
     vectorComponentes[i].listaProveedores = nullptr; 
     vectorComponentes[i].stock = rand() % 500 + 50;
 
