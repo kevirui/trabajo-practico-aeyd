@@ -97,14 +97,14 @@ void cargarComponentes()
   {
     vectorComponentes[i].ID = i + 1;
 
-    strcpy(vectorComponentes[i].descripcion, nombresComponentes[i%20].c_str());
+    strcpy(vectorComponentes[i].descripcion, nombresComponentes[i % 20].c_str());
 
     vectorComponentes[i].listaProveedores = nullptr; 
     vectorComponentes[i].stock = rand() % 500 + 50;
 
     for(int j = 0; j < 3; j++)
     {
-      agregarProveedorAComponente(vectorComponentes[i], j+1, nombresProveedores[j].c_str(), ((rand()%5000+500) / 100.0));
+      agregarProveedorAComponente(vectorComponentes[i], j + 1, nombresProveedores[j].c_str(), ((rand()%5000+500) / 100.0));
     }
   }
 }
@@ -142,7 +142,7 @@ void agregarComponenteAModelo(RegistroModelos& modelo, int ID_Componente, int ca
   modelo.listaDeComponentes = nuevoNodo;
 }
 
-void cargarModelos()
+void cargarModelos(int pedidos)
 {
   string nombres[] = {
     "Air Max 2025", "Classic Leather", "Sport Pro X", "Zeta Runner", "Urban Pulse", 
@@ -159,11 +159,11 @@ void cargarModelos()
   
   string temporadas[] = {"Verano", "Invierno"};
   
-  for (int i = 0; i < 5; i++)
+  for (int i = 0; i < pedidos; i++)
   {
     vectorModelos[i].ID_modelo = i + 1;
 
-    strcpy(vectorModelos[i].descripcion, nombres[i].c_str());
+    strcpy(vectorModelos[i].descripcion, nombres[i % 50].c_str());
 
     vectorModelos[i].precio_base = (rand() % 15000 + 5000) / 100.0; 
     vectorModelos[i].temporada = temporadas[i % 2];
@@ -181,9 +181,9 @@ void cargarModelos()
 
 }
 
-void mostrarModelos()
+void mostrarModelos(int pedidos)
 {
-  for(int i = 0; i < 5; i++)
+  for(int i = 0; i < pedidos; i++)
   {
     cout << "ID: " << vectorModelos[i].ID_modelo << endl;
     cout << "Modelo: " << vectorModelos[i].descripcion << endl;
@@ -199,20 +199,29 @@ void mostrarModelos()
 
       temp = temp->sgte;
     }
+
     cout<< "-- o --" << endl;
   }
 }
-
 
 // Resolucion estrategica del problema:
 
 int main()
 {
-  srand(time(0));
-  cargarModelos();
-  cargarComponentes();
- 
   FILE* archivoPedidos = fopen("pedidos.dat", "ab"); //Abrir archivo
+  
+  int cantPedidos;
+
+  if(fseek(archivoPedidos, 0, SEEK_SET) == 0)
+  {
+    cout << "Ingresar cantidad de pedidos: ";
+
+    cin >> cantPedidos;
+  }
+
+  srand(time(0));
+  cargarModelos(cantPedidos);
+  cargarComponentes();
 
   if(!archivoPedidos) //Si el archivo no se pudo leer, termina el programa
   {
@@ -222,16 +231,7 @@ int main()
 
   registroPedidos pedido;
 
-  int cantBloques = 0;
-
-  if(fseek(archivoPedidos, 0, SEEK_SET) == 0)
-  {
-    cout << "Ingresar cantidad de pedidos: ";
-
-    cin >> cantBloques;
-  }
-
-  for(int i = 0; i < cantBloques; i++)
+  for(int i = 0; i < cantPedidos; i++)
   {
     cout <<"Cargar informacion del Pedido " << i + 1 << ":" << endl;
 
@@ -252,15 +252,13 @@ int main()
     fwrite(&pedido, sizeof(pedido), 1, archivoPedidos);
   }
 
-  fclose(archivoPedidos);
-
-  cout << "Pedidos guardados correctamente" << endl;
+  cout << "Pedidos guardados correctamente" << endl << endl;
 
   fseek(archivoPedidos, 0, SEEK_SET); //Leer y asociar los pedidos
 
   while(fread(&pedido, sizeof(pedido), 1, archivoPedidos))
   {
-    for(int i = 0; i < 5; i++) //Recorrer modelos
+    for(int i = 0; i < cantPedidos; i++) //Recorrer modelos
     {
       if(pedido.ID_modelo == vectorModelos[i].ID_modelo) //Busqueda del modelo
       {
@@ -268,7 +266,7 @@ int main()
 
         while(componentes != nullptr) //Recorrer componentes del modelo
         {
-          for(int j = 0; j < 10; j++)
+          for(int j = 0; j < cantPedidos; j++)
           {
             if(componentes -> info.ID_Accesorio == vectorComponentes[j].ID) //Buscar componente
             {
@@ -297,6 +295,8 @@ int main()
       }
     }
   }
+
+  mostrarModelos(cantPedidos);
 
   fclose(archivoPedidos);
 
