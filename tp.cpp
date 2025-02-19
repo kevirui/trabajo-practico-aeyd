@@ -82,7 +82,7 @@ void agregarProveedorAComponente(Componentes &componente, int ID, const char* no
   componente.listaProveedores = nuevoProveedor;
 }
 
-void cargarComponentes()
+void cargarComponentes(int cantComponentes)
 {
   string nombresComponentes[] = {
     "Suela de goma", "Cordones resistentes", "Plantilla acolchada", "Forro transpirable", "Refuerzo de talón",
@@ -93,7 +93,7 @@ void cargarComponentes()
 
   string nombresProveedores[] = {"Proveedor A", "Proveedor B", "Proveedor C"};
   
-  for(int i = 0; i < 10; i++)
+  for(int i = 0; i < cantComponentes; i++)
   {
     vectorComponentes[i].ID = i + 1;
 
@@ -104,14 +104,14 @@ void cargarComponentes()
 
     for(int j = 0; j < 3; j++)
     {
-      agregarProveedorAComponente(vectorComponentes[i], j + 1, nombresProveedores[j].c_str(), ((rand()%5000+500) / 100.0));
+      agregarProveedorAComponente(vectorComponentes[i], j + 1, nombresProveedores[j].c_str(), ((rand() % 5000 + 500) / 100.0));
     }
   }
 }
 
-void mostrarComponentes()
+void mostrarComponentes(int pedidos)
 {
-  for(int i = 0; i < 10; i++)
+  for(int i = 0; i < pedidos; i++)
   {
     cout << "ID: " << vectorComponentes[i].ID << endl;
     cout << "Componente: " << vectorComponentes[i].descripcion << endl;
@@ -122,9 +122,9 @@ void mostrarComponentes()
 
     while(temp)
     {
-      cout << " - "<< temp->info.nombre << " ( Valor: $" << temp->info.valor_unitario << " )" << endl;
+      cout << " - " << temp->info.nombre << " ( Valor: $" << temp->info.valor_unitario << " )" << endl;
 
-      temp = temp->sgte;
+      temp = temp -> sgte;
     }
 
     cout << "-- o --" << endl;
@@ -163,7 +163,7 @@ void cargarModelos(int pedidos)
   {
     vectorModelos[i].ID_modelo = i + 1;
 
-    strcpy(vectorModelos[i].descripcion, nombres[i % 50].c_str());
+    strcpy(vectorModelos[i].descripcion, nombres[rand() % (sizeof(nombres) / sizeof(nombres[0]))].c_str());
 
     vectorModelos[i].precio_base = (rand() % 15000 + 5000) / 100.0; 
     vectorModelos[i].temporada = temporadas[i % 2];
@@ -176,6 +176,8 @@ void cargarModelos(int pedidos)
       int cantidad = rand() % 10 + 1;
 
       agregarComponenteAModelo(vectorModelos[i], idComponente, cantidad);
+
+      cargarComponentes(cantidadComponentes);
     }
   }
 
@@ -220,8 +222,10 @@ int main()
   }
 
   srand(time(0));
+
   cargarModelos(cantPedidos);
-  cargarComponentes();
+
+  cargarComponentes(cantPedidos);
 
   if(!archivoPedidos) //Si el archivo no se pudo leer, termina el programa
   {
@@ -297,6 +301,8 @@ int main()
   }
 
   mostrarModelos(cantPedidos);
+
+  mostrarComponentes(cantPedidos);
 
   fclose(archivoPedidos);
 
