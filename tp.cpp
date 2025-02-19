@@ -105,21 +105,25 @@ void inicializarComponentes()
 
 void cargarComponentes(int cantidadComponentes, RegistroModelos &modelo)
 {
-  int IDAccesorio = modelo.listaDeComponentes->info.ID_Accesorio;
+  NodoComponente *auxComponente = modelo.listaDeComponentes;
+  while (auxComponente != nullptr)
+  {
+    int IDAccesorio = auxComponente->info.ID_Accesorio;
+    strcpy(auxComponente->info.descripcion, nombresComponentes[IDAccesorio].c_str());
+    auxComponente = auxComponente->sgte;
+  }
+
   for (int i = 0; i < cantidadComponentes; i++)
   {
     vectorComponentes[i] = new Componentes;
-    vectorComponentes[i]->listaDeComponentes = new NodoComponente;
-    vectorComponentes[i]->listaDeComponentes->info.ID_Accesorio = IDAccesorio;
-    strcpy(vectorComponentes[i]->listaDeComponentes->info.descripcion, nombresComponentes[IDAccesorio].c_str());
+    vectorComponentes[i]->listaDeComponentes = modelo.listaDeComponentes;
     vectorComponentes[i]->listaProveedores = nullptr;
-    vectorComponentes[i]->listaDeComponentes->info.stock = rand() % 100 + 1;
 
     // Agregar Proveedores al Componente
     for (int j = 0; j < 3; j++)
     {
       NodoProveedores *nuevoProveedor = new NodoProveedores;
-      nuevoProveedor->info.ID = j+1;
+      nuevoProveedor->info.ID = j + 1;
       strcpy(nuevoProveedor->info.nombre, nombresProveedores[j].c_str());
       nuevoProveedor->info.valor_unitario = ((rand() % 5000 + 50) / 100.0);
       nuevoProveedor->sgte = vectorComponentes[i]->listaProveedores;
@@ -145,7 +149,7 @@ void cargarModelos(int cantPedidos, RegistroArchivoPedidos *pedidos)
     cantComponentes = rand() % 5 + 1;
     for (int j = 0; j < cantComponentes; j++)
     {
-      int idComponente = rand() % 5;
+      int idComponente = rand() % 20; // Cambiado a 20 para cubrir todos los nombresComponentes
       NodoComponente *nuevo = new NodoComponente();
       nuevo->info.ID_Accesorio = idComponente;
       nuevo->info.stock = rand() % 10 + 1;
@@ -177,20 +181,21 @@ void mostrarPedido(int cantPedidos, FILE *archivoPedidos)
     cout << "ID: " << vectorModelos[idModeloSolicitado].ID_modelo << endl;
     cout << "Nombre del modelo: " << vectorModelos[idModeloSolicitado].nombre << endl;
     cout << "Precio Base: $" << vectorModelos[idModeloSolicitado].precio_base << endl;
-    cout << "Tempoarada: " << vectorModelos[idModeloSolicitado].temporada << endl;
+    cout << "Temporada: " << vectorModelos[idModeloSolicitado].temporada << endl;
     cout << "Componentes: " << endl;
     NodoComponente *auxComponente = vectorModelos[idModeloSolicitado].listaDeComponentes;
     while (auxComponente != nullptr)
     {
-      cout << " - Componente ID: " << auxComponente->info.ID_Accesorio<< endl;
-      cout << " - Nombre del componente: "<< auxComponente->info.descripcion<< endl;
-      cout << " - Stock del componente: "<< auxComponente->info.stock<< endl;
-      cout << " - Proveedores: "<< endl;
-      NodoProveedores *auxProveedores = vectorComponentes[i]->listaProveedores;
-      while (auxProveedores != nullptr){
-       cout << "   -- " << auxProveedores->info.nombre;
-       cout << " ( Valor: $"<< auxProveedores->info.valor_unitario<< " )"<< endl;
-       auxProveedores = auxProveedores->sgte;
+      cout << " - Componente ID: " << auxComponente->info.ID_Accesorio << endl;
+      cout << " - Nombre del componente: " << auxComponente->info.descripcion << endl;
+      cout << " - Stock del componente: " << auxComponente->info.stock << endl;
+      cout << " - Proveedores: " << endl;
+      NodoProveedores *auxProveedores = vectorComponentes[auxComponente->info.ID_Accesorio]->listaProveedores;
+      while (auxProveedores != nullptr)
+      {
+        cout << "   -- " << auxProveedores->info.nombre;
+        cout << " ( Valor: $" << auxProveedores->info.valor_unitario << " )" << endl;
+        auxProveedores = auxProveedores->sgte;
       }
       cout << "-- o --" << endl;
       auxComponente = auxComponente->sgte;
@@ -231,7 +236,7 @@ int main()
     cout << "Ingresa la cantidad que deseas: ";
     cin >> pedidos[i].cantidadPedidos;
 
-    fwrite(&pedidos[i], sizeof( pedidos[i] ), 1, archivoPedidos);
+    fwrite(&pedidos[i], sizeof(pedidos[i]), 1, archivoPedidos);
   }
 
   cargarModelos(cantPedidos, pedidos);
