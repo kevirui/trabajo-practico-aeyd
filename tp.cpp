@@ -68,6 +68,28 @@ struct registroPedidos  //Declarar registro de informacion de pedidos
   float costo;
 };
 
+string nombresComponentes[] = {
+    "Suela de goma", "Cordones resistentes", "Plantilla acolchada", "Forro transpirable", "Refuerzo de talón",
+    "Cámara de aire", "Tejido impermeable", "Sistema de ajuste rápido", "Entresuela EVA", "Refuerzo lateral",
+    "Cojín de impacto", "Placa de carbono", "Diseño ergonómico", "Malla transpirable", "Refuerzo en puntera",
+    "Sistema de amortiguación", "Estructura de soporte", "Cuero sintético", "Espuma de memoria", "Costura reforzada"
+};
+string nombres[] = {
+    "Air Max 2025", "Classic Leather", "Sport Pro X", "Zeta Runner", "Urban Pulse", 
+    "Aero Glide", "Trail Blazer", "Skyline Boost", "Velocity Grip", "Storm Breaker",
+    "Hyperflex Alpha", "Momentum Edge", "Eco Stepper", "Fusion X", "Gravity Ride",
+    "Stratus Flow", "Wave Runner", "Titan Core", "Zenith Trek", "Quantum Dash",
+    "Nova Impact", "Epic Horizon", "Terra Stride", "Blizzard Force", "Aqua Storm",
+    "Rapid Flux", "Nimbus Drift", "Inferno Sprint", "Shadow Pulse", "Eclipse Aero",
+    "Glacier Trek", "Solar Shift", "Thunder Ace", "Cosmo Sprint", "Vortex Glide",
+    "Nebula Runner", "Canyon Racer", "Falcon Drive", "Sonic Surge", "Stellar Drift",
+    "Tornado Max", "Astro Pulse", "Aurora Blaze", "Comet Sprint", "Phantom Trek",
+    "Echo Stride", "Supernova Glide", "Pioneer Dash", "Horizon Edge", "Hyper Drive"
+  };
+
+string nombresProveedores[] = {"Proveedor A", "Proveedor B", "Proveedor C"};
+string temporadas[] = {"Verano", "Invierno"};
+
 void agregarProveedorAComponente(Componentes &componente, int ID, const char* nombre, float valor_unitario)
 {
   NodoProveedores* nuevoProveedor = new NodoProveedores;
@@ -82,23 +104,15 @@ void agregarProveedorAComponente(Componentes &componente, int ID, const char* no
   componente.listaProveedores = nuevoProveedor;
 }
 
-void cargarComponentes(int cantComponentes)
+void cargarComponentes(int cantComponentes, nodoModelos modelo)
 {
-  string nombresComponentes[] = {
-    "Suela de goma", "Cordones resistentes", "Plantilla acolchada", "Forro transpirable", "Refuerzo de talón",
-    "Cámara de aire", "Tejido impermeable", "Sistema de ajuste rápido", "Entresuela EVA", "Refuerzo lateral",
-    "Cojín de impacto", "Placa de carbono", "Diseño ergonómico", "Malla transpirable", "Refuerzo en puntera",
-    "Sistema de amortiguación", "Estructura de soporte", "Cuero sintético", "Espuma de memoria", "Costura reforzada"
-  };
-
-  string nombresProveedores[] = {"Proveedor A", "Proveedor B", "Proveedor C"};
-  
   for(int i = 0; i < cantComponentes; i++)
   {
     vectorComponentes[i].ID = i + 1;
 
     strcpy(vectorComponentes[i].descripcion, nombresComponentes[rand() % (sizeof(nombresComponentes) / sizeof(nombresComponentes[0]))].c_str());
 
+    nombresComponentes[rand() % modelo.listaDeComponentes->info.ID_Accesorio];
     vectorComponentes[i].listaProveedores = nullptr; 
     vectorComponentes[i].stock = rand() % 500 + 50;
 
@@ -114,7 +128,7 @@ void mostrarComponentes(int pedidos)
   for(int i = 0; i < pedidos; i++)
   {
     cout << "ID: " << vectorComponentes[i].ID << endl;
-    cout << "Componente: " << vectorComponentes[i].descripcion << endl;
+    cout << "Componente: " << vectorComponentes[i].descripcion<< endl;
     cout << "Stock: " << vectorComponentes[i].stock << endl;
     cout << "Proveedores: " << endl;
 
@@ -127,8 +141,8 @@ void mostrarComponentes(int pedidos)
       temp = temp -> sgte;
     }
 
-    cout << "-- o --" << endl;
   }
+    cout << "-- o --" << endl;
 }
 
 void agregarComponenteAModelo(RegistroModelos& modelo, int ID_Componente, int cantidad)
@@ -144,21 +158,6 @@ void agregarComponenteAModelo(RegistroModelos& modelo, int ID_Componente, int ca
 
 void cargarModelos(int pedidos)
 {
-  string nombres[] = {
-    "Air Max 2025", "Classic Leather", "Sport Pro X", "Zeta Runner", "Urban Pulse", 
-    "Aero Glide", "Trail Blazer", "Skyline Boost", "Velocity Grip", "Storm Breaker",
-    "Hyperflex Alpha", "Momentum Edge", "Eco Stepper", "Fusion X", "Gravity Ride",
-    "Stratus Flow", "Wave Runner", "Titan Core", "Zenith Trek", "Quantum Dash",
-    "Nova Impact", "Epic Horizon", "Terra Stride", "Blizzard Force", "Aqua Storm",
-    "Rapid Flux", "Nimbus Drift", "Inferno Sprint", "Shadow Pulse", "Eclipse Aero",
-    "Glacier Trek", "Solar Shift", "Thunder Ace", "Cosmo Sprint", "Vortex Glide",
-    "Nebula Runner", "Canyon Racer", "Falcon Drive", "Sonic Surge", "Stellar Drift",
-    "Tornado Max", "Astro Pulse", "Aurora Blaze", "Comet Sprint", "Phantom Trek",
-    "Echo Stride", "Supernova Glide", "Pioneer Dash", "Horizon Edge", "Hyper Drive"
-  };
-  
-  string temporadas[] = {"Verano", "Invierno"};
-  
   for (int i = 0; i < pedidos; i++)
   {
     vectorModelos[i].ID_modelo = i + 1;
@@ -172,7 +171,7 @@ void cargarModelos(int pedidos)
     int cantidadComponentes = rand() % 5 + 1;
     for(int j = 0; j < cantidadComponentes; j++)
     {
-      int idComponente = rand() % 1000 + 1;
+      int idComponente = rand() % (sizeof(nombresComponentes) / sizeof(nombresComponentes[0]));
       int cantidad = rand() % 10 + 1;
 
       agregarComponenteAModelo(vectorModelos[i], idComponente, cantidad);
