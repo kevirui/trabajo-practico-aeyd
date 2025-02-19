@@ -171,6 +171,8 @@ void cargarModelos(int cantPedidos, RegistroArchivoPedidos *pedidos)
 
 void mostrarPedido(int cantPedidos, FILE *archivoPedidos)
 {
+  fseek(archivoPedidos, 0, SEEK_SET);
+
   RegistroArchivoPedidos pedido;
 
   for (int i = 0; i < cantPedidos; i++)
@@ -201,6 +203,50 @@ void mostrarPedido(int cantPedidos, FILE *archivoPedidos)
       auxComponente = auxComponente->sgte;
     }
   }
+}
+
+void calcularCostoYActualizarPedidos(int cantPedidos, FILE *archivoPedidos)
+{
+  fseek(archivoPedidos, 0, SEEK_SET);
+
+  RegistroArchivoPedidos pedido;
+  float costoTotal = 0;
+
+  for (int i = 0; i < cantPedidos; i++)
+  {
+    fread(&pedido, sizeof(pedido), 1, archivoPedidos);
+    int idModeloSolicitado = pedido.ID_modelo - 1;
+    float costoParcial = 0;
+
+    NodoComponente *auxComponente = vectorModelos[idModeloSolicitado].listaDeComponentes;
+    while (auxComponente != nullptr)
+    {
+      NodoProveedores *auxProveedores = vectorComponentes[auxComponente->info.ID_Accesorio]->listaProveedores;
+      float menorValor = FLT_MAX;
+
+      while (auxProveedores != nullptr)
+      {
+        if (auxProveedores->info.valor_unitario < menorValor)
+        {
+          menorValor = auxProveedores->info.valor_unitario;
+        }
+        auxProveedores = auxProveedores->sgte;
+      }
+
+      costoParcial += menorValor * auxComponente->info.stock;
+      auxComponente->info.stock -= pedido.cantidadPedidos; // Actualizar stock
+      auxComponente = auxComponente->sgte;
+    }
+
+    pedido.costo = costoParcial;
+    costoTotal += costoParcial;
+
+    fseek(archivoPedidos, -sizeof(pedido), SEEK_CUR);
+    fwrite(&pedido, sizeof(pedido), 1, archivoPedidos);
+    fseek(archivoPedidos, 0, SEEK_CUR);
+  }
+
+  cout << "Costo total del pedido: $" << costoTotal << endl;
 }
 
 // Resolucion estrategica del problema:
@@ -243,7 +289,8 @@ int main()
 
   cout << "Pedidos guardados correctamente" << endl;
 
-  fseek(archivoPedidos, 0, SEEK_SET);
+  calcularCostoYActualizarPedidos(cantPedidos, archivoPedidos);
+
   mostrarPedido(cantPedidos, archivoPedidos);
 
   fclose(archivoPedidos);
