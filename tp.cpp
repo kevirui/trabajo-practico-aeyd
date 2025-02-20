@@ -209,7 +209,7 @@ void procesar_pedidos(const char *archivo_entrada, const char *archivo_salida)
             costo_pedido += costo_componente;                           // Actualiza el costo del pedido
 
             cout << "Proveedor elegido: " << componentes[id_comp].proveedores[proveedor_elegido].nombre << endl; // Muestra el proveedor elegido
-            double costo_componente = (int)(costo_componente * 100 + 0.5) / 100.0;
+            costo_componente = (int)(costo_componente * 100 + 0.5) / 100.0;
             cout << "Costo del componente: $" << costo_componente << endl; // Muestra el costo del componente
         }
 
@@ -217,7 +217,7 @@ void procesar_pedidos(const char *archivo_entrada, const char *archivo_salida)
         costo_total_pedidos += costo_pedido;             // Actualiza el costo total de los pedidos
         fwrite(&pedido, sizeof(Pedido), 1, archivo_out); // Escribe el pedido actualizado en el archivo
 
-        double costo_pedido = (int)(costo_pedido * 100 + 0.5) / 100.0;
+        costo_pedido = (int)(costo_pedido * 100 + 0.5) / 100.0;
         cout << "\nCosto total del pedido: $" << costo_pedido << endl; // Muestra el costo total del pedido
     }
 
@@ -235,7 +235,7 @@ void procesar_pedidos(const char *archivo_entrada, const char *archivo_salida)
     }
     fclose(archivo_out); // Cierra el archivo de pedidos actualizados
 
-    double costo_total_pedidos = (int)(costo_total_pedidos * 100 + 0.5) / 100.0;
+    costo_total_pedidos = (int)(costo_total_pedidos * 100 + 0.5) / 100.0;
     cout << endl;
     cout << "Costo total de todos los pedidos: $" << costo_total_pedidos << endl; // Muestra el costo total de los pedidos
 }
