@@ -1,0 +1,101 @@
+# Manual de Usuario: Sistema de Gestión de Pedidos de Zapatos
+
+## Introducción
+
+Bienvenido al Sistema de Gestión de Pedidos de Zapatos. Este programa está diseñado para ayudar a una fábrica de zapatos a gestionar sus pedidos, calcular costos y mantener un control del inventario de componentes. Este manual le guiará a través de las funciones básicas del sistema.
+
+## Requisitos del Sistema
+
+- Computadora con sistema operativo Windows, macOS o Linux
+- Terminal o línea de comandos
+- Programa compilado "sistema_pedidos" (o "sistema_pedidos.exe" en Windows)
+
+## Inicio del Programa
+
+1. Abra la terminal o línea de comandos.
+2. Navegue hasta el directorio donde se encuentra el archivo ejecutable del programa.
+3. Ejecute el programa escribiendo:
+
+./sistema_pedidos
+
+## Funcionalidades Principales
+
+### 1. Inicialización de Datos
+
+Al iniciar, el programa automáticamente:
+- Genera datos de ejemplo para modelos de zapatos y componentes.
+- Crea un conjunto de proveedores ficticios para cada componente.
+
+**Nota**: En esta versión de demostración, no es necesario ingresar datos manualmente.
+
+### 2. Visualización de Componentes
+
+El programa mostrará automáticamente una lista de todos los componentes disponibles, incluyendo:
+- ID del componente
+- Descripción
+- Stock actual
+- Lista de proveedores con sus precios
+
+Revise esta información para familiarizarse con los componentes disponibles.
+
+### 3. Generación de Pedidos de Ejemplo
+
+El sistema generará automáticamente un archivo llamado "pedidos.dat" con pedidos de ejemplo. No se requiere acción del usuario para este paso.
+
+### 4. Procesamiento de Pedidos
+
+El programa procesará automáticamente los pedidos generados. Para cada pedido, verá:
+- ID del pedido
+- Detalles del modelo de zapato
+- Lista de componentes necesarios
+- Información de proveedores para cada componente
+- Cálculos de costos
+
+Observe cómo el sistema:
+- Selecciona el proveedor más económico para cada componente.
+- Calcula el costo total de cada pedido.
+- Actualiza el stock de componentes.
+
+### 5. Resumen de Pedidos
+
+Al final del procesamiento, el sistema mostrará:
+- Un resumen de todos los pedidos procesados con sus costos actualizados.
+- El costo total de todos los pedidos.
+
+### 6. Archivos Generados
+
+El programa creará dos archivos en el directorio de trabajo:
+- "pedidos.dat": Contiene los pedidos de ejemplo generados.
+- "pedidos_actualizados.dat": Contiene los pedidos procesados con costos actualizados.
+
+## Interpretación de Resultados
+
+- **Costo del Pedido**: Representa el costo total de producción para ese pedido específico.
+- **Stock Actualizado**: Muestra cómo el inventario de componentes se reduce después de procesar cada pedido.
+- **Proveedor Seleccionado**: Para cada componente, se elige el proveedor con el precio más bajo.
+
+## Solución de Problemas
+
+1. **El programa no inicia**: 
+- Asegúrese de estar en el directorio correcto.
+- Verifique que el archivo tenga permisos de ejecución.
+
+2. **Error de "archivo no encontrado"**: 
+- Compruebe que tiene permisos de escritura en el directorio actual.
+
+3. **Los números parecen incorrectos**: 
+- Recuerde que este es un sistema de demostración con datos generados aleatoriamente.
+
+## Limitaciones Actuales
+
+- El programa no permite la entrada de datos en tiempo real.
+- No hay interfaz gráfica de usuario.
+- Los datos se generan aleatoriamente en cada ejecución.
+
+## Soporte Técnico
+
+Para asistencia técnica, por favor contacte a [su información de contacto o departamento de soporte].
+
+## Conclusión
+
+Este Sistema de Gestión de Pedidos de Zapatos proporciona una simulación básica del proceso de gestión de pedidos e inventario. Familiarícese con la salida del programa para entender mejor cómo se calculan los costos y se gestionan los componentes en un entorno de producción de zapatos.
