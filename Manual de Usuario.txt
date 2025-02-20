@@ -8,7 +8,8 @@ Bienvenido al Sistema de Gestión de Pedidos de Zapatos. Este programa está dis
 
 - Computadora con sistema operativo Windows, macOS o Linux
 - Terminal o línea de comandos
-- Programa compilado "sistema_pedidos" (o "sistema_pedidos.exe" en Windows)
+- Programa compilado "tp" (o "tp.exe" en Windows)
+- Archivo de pedidos
 
 ## Inicio del Programa
 
@@ -16,7 +17,7 @@ Bienvenido al Sistema de Gestión de Pedidos de Zapatos. Este programa está dis
 2. Navegue hasta el directorio donde se encuentra el archivo ejecutable del programa.
 3. Ejecute el programa escribiendo:
 
-./sistema_pedidos
+./tp.exe
 
 ## Funcionalidades Principales
 
@@ -40,7 +41,8 @@ Revise esta información para familiarizarse con los componentes disponibles.
 
 ### 3. Generación de Pedidos de Ejemplo
 
-El sistema generará automáticamente un archivo llamado "pedidos.dat" con pedidos de ejemplo. No se requiere acción del usuario para este paso.
+En caso de no tener archivo de pedidos.
+- El sistema generará automáticamente un archivo llamado "pedidos.dat" con pedidos de ejemplo. No se requiere acción del usuario para este paso.
 
 ### 4. Procesamiento de Pedidos
 
@@ -94,8 +96,8 @@ El programa creará dos archivos en el directorio de trabajo:
 
 ## Soporte Técnico
 
-Para asistencia técnica, por favor contacte a [su información de contacto o departamento de soporte].
+Para asistencia técnica, por favor contacte a kruiz@frba.utn.edu.ar - tbertucelli@frba.utn.edu.ar - nricheri@frba.utn.edu.ar.
 
 ## Conclusión
 
-Este Sistema de Gestión de Pedidos de Zapatos proporciona una simulación básica del proceso de gestión de pedidos e inventario. Familiarícese con la salida del programa para entender mejor cómo se calculan los costos y se gestionan los componentes en un entorno de producción de zapatos.
+Este Sistema de Gestión de Pedidos de Zapatos proporciona una simulación básica del proceso de gestión de pedidos e inventario.
