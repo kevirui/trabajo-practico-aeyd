@@ -44,18 +44,31 @@ struct Pedido {
 
 Modelo modelos[50];
 Componente componentes[1000];
-int num_modelos = 0, num_componentes = 0;
 
-void cargarDatosPrueba() {
-    modelos[0] = {1, "Modelo Deportivo", 1500.0, "verano", {{1000, 2}, {1001, 1}}, 2};
-    modelos[1] = {2, "Modelo Invierno", 2000.0, "invierno", {{1002, 3}}, 1};
-    num_modelos = 2;
+string nombreComp[] = {
+  "Suela de goma", "Cordones resistentes", "Plantilla acolchada", "Forro transpirable", "Refuerzo de talón",
+  "Cámara de aire", "Tejido impermeable", "Sistema de ajuste rápido", "Entresuela EVA", "Refuerzo lateral",
+  "Cojín de impacto", "Placa de carbono", "Diseño ergonómico", "Malla transpirable", "Refuerzo en puntera",
+  "Sistema de amortiguación", "Estructura de soporte", "Cuero sintético", "Espuma de memoria", "Costura reforzada"
+};
 
-    componentes[0] = {1000, "Cordones", {{1, "Proveedor A", 10.0}, {2, "Proveedor B", 9.5}}, 2, 50};
-    componentes[1] = {1001, "Suela", {{3, "Proveedor C", 25.0}}, 1, 30};
-    componentes[2] = {1002, "Plantilla", {{4, "Proveedor D", 5.0}}, 1, 100};
-    num_componentes = 3;
-}
+string nombreMod[] = {
+  "Air Max 2025", "Classic Leather", "Sport Pro X", "Zeta Runner", "Urban Pulse", 
+  "Aero Glide", "Trail Blazer", "Skyline Boost", "Velocity Grip", "Storm Breaker",
+  "Hyperflex Alpha", "Momentum Edge", "Eco Stepper", "Fusion X", "Gravity Ride",
+  "Stratus Flow", "Wave Runner", "Titan Core", "Zenith Trek", "Quantum Dash",
+  "Nova Impact", "Epic Horizon", "Terra Stride", "Blizzard Force", "Aqua Storm",
+  "Rapid Flux", "Nimbus Drift", "Inferno Sprint", "Shadow Pulse", "Eclipse Aero",
+  "Glacier Trek", "Solar Shift", "Thunder Ace", "Cosmo Sprint", "Vortex Glide",
+  "Nebula Runner", "Canyon Racer", "Falcon Drive", "Sonic Surge", "Stellar Drift",
+  "Tornado Max", "Astro Pulse", "Aurora Blaze", "Comet Sprint", "Phantom Trek",
+  "Echo Stride", "Supernova Glide", "Pioneer Dash", "Horizon Edge", "Hyper Drive"
+};
+
+string temporadas[] = {"verano", "invierno"};
+string proveedores[] = {"Proveedor A", "Proveedor B", "Proveedor C"};
+
+int num_modelos = 50, num_componentes = 20;
 
 void generarArchivoPedido(const char *archivo_pedidos) {
     FILE *archivo = fopen(archivo_pedidos, "rb");
@@ -144,7 +157,33 @@ void procesar_pedidos(const char *archivo_pedidos) {
 }
 
 int main() {
-    cargarDatosPrueba();
+  // Cargar modelos
+    for(int i=0; i<num_modelos; i++){
+      modelos[i].id = i+1;
+      strcpy(modelos[i].descripcion, nombreMod[i].c_str());
+      modelos[i].precio_base = 1000 + i*100;
+      strcpy(modelos[i].temporada, temporadas[i%2].c_str());
+      modelos[i].num_componentes = 10;
+      for(int j=0; j<10; j++){
+	modelos[i].componentes[j].id_accesorio = j + 1;
+	modelos[i].componentes[j].cantidad = 1 + (i%3);
+      }
+    }
+
+    // Cargar componentes
+    for(int i=0; i<num_componentes; i++){
+      componentes[i].id = i+1;
+      strcpy(componentes[i].descripcion, nombreComp[i%20].c_str());
+      componentes[i].stock = 100 + i;
+      componentes[i].num_proveedores = 3;
+      for(int j=0; j<3; j++){
+	componentes[i].proveedores[j].id = j+1;
+	strcpy(componentes[i].proveedores[j].nombre, proveedores[j].c_str());
+	componentes[i].proveedores[j].valor_unitario = 10 + j;
+      }
+    }
+    cout<< "Datos de prueba cargados correctamente."<< endl;
+    
     generarArchivoPedido("pedidos.dat");
     procesar_pedidos("pedidos.dat");
     return 0;
