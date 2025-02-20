@@ -1,81 +1,87 @@
-# Procesamiento de Pedidos de Modelos y Componentes
+## Descripción General
+Este programa simula un sistema de gestión para una fábrica de zapatos. Calcula la cantidad de accesorios necesarios para la producción basándose en los pedidos recibidos, maneja el inventario de componentes, y calcula los costos considerando múltiples proveedores.
 
-## Descripción
-Este programa en C++ permite gestionar el procesamiento de pedidos de modelos de productos, verificando la disponibilidad de componentes y calculando el costo total basado en los proveedores más económicos.
+## Estructura del Código
 
-## Funcionalidades
-- Carga de modelos de productos con sus componentes.
-- Asociación de componentes con proveedores y sus precios.
-- Registro de pedidos en un archivo binario (`pedidos.dat`).
-- Lectura y procesamiento de pedidos:
-  - Verificación de stock antes de aceptar un pedido.
-  - Cálculo del costo total basado en el proveedor más barato.
-  - Reducción del stock de componentes en caso de aceptación del pedido.
-  - Rechazo de pedidos si no hay stock suficiente.
-- Visualización de pedidos con su costo final o motivo de rechazo.
+### Estructuras de Datos
+1. `Proveedor`: Almacena información de cada proveedor.
+   - `id`: Identificador único del proveedor.
+   - `nombre`: Nombre del proveedor.
+   - `valor_unitario`: Precio por unidad del componente.
 
-## Estructuras de Datos
-### `struct Modelo`
-Representa un modelo de producto y los componentes asociados.
-```cpp
-struct Modelo {
-    int ID_modelo;
-    char descripcion[30];
-    nodoModelos* listaDeComponentes;
-};
-```
+2. `Componente`: Representa cada accesorio o parte del zapato.
+   - `id`: Identificador único del componente.
+   - `descripcion`: Descripción del componente.
+   - `proveedores`: Array de proveedores para este componente.
+   - `num_proveedores`: Número de proveedores disponibles.
+   - `stock`: Cantidad disponible en inventario.
 
-### `struct Componente`
-Representa un componente y sus proveedores.
-```cpp
-struct Componente {
-    int ID;
-    char descripcion[30];
-    int stock;
-    NodoProveedores* listaProveedores;
-};
-```
+3. `ComponenteModelo`: Relaciona un componente con un modelo de zapato.
+   - `id_accesorio`: ID del componente.
+   - `cantidad`: Cantidad necesaria para el modelo.
 
-### `struct Proveedor`
-Representa un proveedor y el costo de un componente.
-```cpp
-struct Proveedor {
-    int ID_proveedor;
-    float valor_unitario;
-};
-```
+4. `Modelo`: Representa un modelo de zapato.
+   - `id`: Identificador único del modelo.
+   - `descripcion`: Descripción del modelo.
+   - `precio_base`: Precio base del modelo.
+   - `temporada`: Temporada del modelo (verano/invierno).
+   - `componentes`: Array de ComponenteModelo.
+   - `num_componentes`: Número de componentes en el modelo.
 
-### `struct Pedido`
-Representa un pedido con la cantidad requerida de un modelo.
-```cpp
-struct Pedido {
-    int ID_pedido;
-    int ID_linea;
-    int ID_modelo;
-    int cantidad;
-};
-```
+5. `Pedido`: Representa un pedido de zapatos.
+   - `id_pedido`: Identificador único del pedido.
+   - `id_linea`: Identificador de línea en el pedido.
+   - `id_modelo`: ID del modelo de zapato.
+   - `fecha`: Fecha del pedido.
+   - `cantidad`: Cantidad de zapatos solicitados.
+   - `costo`: Costo total del pedido (calculado por el programa).
 
-## Archivo de Pedidos (`pedidos.dat`)
-El archivo binario almacena los pedidos en formato estructurado. El programa lee estos datos y los procesa.
+### Funciones Principales
 
-## Requisitos
-- Compilador C++ compatible con C++11 o superior.
-- Uso de MSYS2, MinGW o cualquier entorno compatible con C++.
+1. `inicializar_datos()`
+   - Propósito: Genera datos de ejemplo para modelos y componentes.
+   - Proceso:
+     - Inicializa componentes con descripciones, stock y proveedores aleatorios.
+     - Crea modelos de zapatos con descripciones, precios base y componentes aleatorios.
 
-## Ejecución
-1. Compilar el programa:
-   ```sh
-   g++ main.cpp -o pedidos
-   ```
-2. Ejecutar:
-   ```sh
-   ./pedidos
-   ```
+2. `mostrar_componentes()`
+   - Propósito: Muestra la información de todos los componentes.
+   - Proceso: Itera sobre el array de componentes y muestra sus detalles.
 
-## Notas
-- Se deben cargar previamente los modelos y componentes en la estructura de datos.
-- El programa debe ejecutarse en un entorno donde se pueda leer y escribir en archivos binarios.
+3. `generar_pedidos(const char *archivo_pedidos)`
+   - Propósito: Crea un archivo binario con pedidos de ejemplo.
+   - Proceso: Genera 5 pedidos aleatorios y los escribe en el archivo.
 
-## Autores
-Desarrollado por [].
+4. `procesar_pedidos(const char *archivo_entrada, const char *archivo_salida)`
+   - Propósito: Procesa los pedidos, calcula costos y actualiza el inventario.
+   - Proceso:
+     - Lee cada pedido del archivo de entrada.
+     - Para cada pedido:
+       - Calcula el costo base multiplicando el precio base del modelo por la cantidad.
+       - Para cada componente del modelo:
+         - Muestra información detallada del componente y sus proveedores.
+         - Selecciona el proveedor con el precio más bajo.
+         - Actualiza el stock del componente.
+         - Añade el costo del componente al costo total del pedido.
+     - Actualiza el pedido con el costo calculado.
+     - Escribe el pedido actualizado en el archivo de salida.
+     - Muestra un resumen de todos los pedidos procesados.
+
+### Flujo del Programa
+
+1. Inicialización:
+   - Se generan datos de ejemplo para componentes y modelos.
+
+2. Generación de Pedidos:
+   - Se crea un archivo con pedidos de ejemplo.
+
+3. Procesamiento de Pedidos:
+   - Se lee cada pedido del archivo.
+   - Para cada pedido, se calculan los costos y se actualizan los stocks.
+   - Se muestra información detallada de cada componente y proveedor.
+   - Se selecciona el proveedor más económico para cada componente.
+   - Se actualiza el archivo de pedidos con los costos calculados.
+
+4. Resumen Final:
+   - Se muestra un resumen de todos los pedidos procesados.
+   - Se calcula y muestra el costo total de todos los pedidos.
