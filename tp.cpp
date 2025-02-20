@@ -42,8 +42,8 @@ struct Pedido {
     float costo;
 };
 
-Modelo modelos[50];
-Componente componentes[1000];
+Modelo modelos[50 + 1];
+Componente componentes[1000 + 1];
 
 string nombreComp[] = {
   "Suela de goma", "Cordones resistentes", "Plantilla acolchada", "Forro transpirable", "Refuerzo de talón",
@@ -85,10 +85,12 @@ void generarArchivoPedido(const char *archivo_pedidos) {
 
     Pedido pedidos[] = {
         {1, 1, "2025-02-19", 1, 2, 0.0},
-        {2, 2, "2025-02-19", 2, 1, 0.0}
+        {2, 2, "2025-02-19", 2, 1, 0.0},
+	{3, 3, "2025-02-19", 3, 3, 0.0},
+	{3, 4, "2025-02-19", 4, 4, 0.0}
     };
 
-    fwrite(pedidos, sizeof(Pedido), 2, archivo);
+    fwrite(pedidos, sizeof(Pedido), 4, archivo);
     fclose(archivo);
     cout << "Archivo de pedidos generado correctamente."<< endl;
 }
@@ -147,8 +149,6 @@ void procesar_pedidos(const char *archivo_pedidos) {
 
         fseek(archivo, -static_cast<long>(sizeof(Pedido)), SEEK_CUR);
         fwrite(&pedido, sizeof(Pedido), 1, archivo);
-
-	fseek(archivo, 0, SEEK_CUR);
       }
     }
     
@@ -185,6 +185,20 @@ int main() {
     cout<< "Datos de prueba cargados correctamente."<< endl;
     
     generarArchivoPedido("pedidos.dat");
+
+    FILE *archivo = fopen("pedidos.dat", "rb");
+    if (!archivo) {
+      cout << "Error al abrir el archivo de pedidos."<< endl;
+      return 1;
+    }
+
+    Pedido pedido;
+    cout << "Pedidos en el archivo:" << endl;
+    while(fread(&pedido, sizeof(Pedido), 1, archivo) == 1){
+      cout<< "ID Pedido: "<< pedido.id_pedido<< ", Modelo: "<< pedido.id_modelo<< ", Cantidad: "<< pedido.cantidad<< endl;
+    }
+    fclose(archivo);
+
     procesar_pedidos("pedidos.dat");
     return 0;
 }
